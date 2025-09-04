@@ -1,16 +1,24 @@
 package haxeshim;
+using StringTools;
 
 class Neko {
-  static public var PATH(default, null):String = Os.slashes(Scope.DEFAULT_ROOT + '/neko');
+  static public var PATH(default, null):String = Os.slashes(Scope.DEFAULT_ROOT + '/neko' + 
+    switch [Sys.systemName(), if (js.Node.process.arch.contains('64')) '64' else "" ] {
+        case ['Windows', arch]: arch;
+        case _:"";
+  });
+
   static var isset = false;  
   static public function setEnv() 
-    if (isset) {
-      if (Os.IS_WINDOWS) {
-        for (k in ENV.keys())
-          Sys.putEnv(k, ENV[k]);
+      if (!isset) {
+          if (Os.IS_WINDOWS) {
+              for (k in ENV.keys()) {
+                  Sys.putEnv(k, ENV[k]);
+              }
+          }
+          isset = true;
       }
-      isset = false;
-    }
+
 
   static public var ENV(default, null):Env = {
     var varName = switch Sys.systemName() {
